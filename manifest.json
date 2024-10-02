@@ -6,6 +6,6 @@
 	"UniqueID": "ichortower.TheJClub",
 	"EntryDll": "TheJClub.dll",
 	"MinimumApiVersion": "4.0.0",
-	"UpdateKeys": ["Nexus:-1", "GitHub:ichortower/TheJClub"],
+	"UpdateKeys": ["Nexus:28276", "GitHub:ichortower/TheJClub"],
 	"Dependencies": []
 }
