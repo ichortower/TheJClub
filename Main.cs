@@ -87,18 +87,6 @@ namespace ichortower.TheJClub
             }
         }
 
-        private void StringStringDictNameReplace(IAssetData asset)
-        {
-            var dict = asset.AsDictionary<string, string>();
-            foreach (var entry in dict.Data) {
-                string s = entry.Value;
-                foreach (var pair in DisplayNameMap) {
-                    s = s.Replace(pair.Key, pair.Value);
-                }
-                dict.Data[entry.Key] = s;
-            }
-        }
-
         private void OnLoadStageChanged(object sender, LoadStageChangedEventArgs e)
         {
             if (e.NewStage >= LoadStage.Preloaded && !NPCListReady &&
@@ -114,13 +102,18 @@ namespace ichortower.TheJClub
             }
         }
 
+        private void StringStringDictNameReplace(IAssetData asset)
+        {
+            var dict = asset.AsDictionary<string, string>();
+            foreach (var entry in dict.Data) {
+                dict.Data[entry.Key] = ReplaceNames(entry.Value);
+            }
+        }
+
         private static void NPC_showTextAboveHead_Postfix(NPC __instance)
         {
             string s = (string)NPC_textAboveHead.GetValue(__instance);
-            foreach (var pair in DisplayNameMap) {
-                s = s.Replace(pair.Key, pair.Value);
-            }
-            NPC_textAboveHead.SetValue(__instance, s);
+            NPC_textAboveHead.SetValue(__instance, ReplaceNames(s));
         }
 
         private static FieldInfo NPC_textAboveHead = typeof(NPC).GetField(
@@ -129,9 +122,7 @@ namespace ichortower.TheJClub
         private static void Utility_ParseGiftReveals_Postfix(
                 ref string __result)
         {
-            foreach (var pair in DisplayNameMap) {
-                __result = __result.Replace(pair.Key, pair.Value);
-            }
+            __result = ReplaceNames(__result);
         }
 
         private string Jayify(string input)
@@ -165,12 +156,36 @@ namespace ichortower.TheJClub
             return "J" + word.Substring(1);
         }
 
+        private static string ReplaceNames(string s)
+        {
+            foreach (string key in DisplayNameMap.Keys) {
+                s = s.Replace(key, DisplayNameMap[key]);
+            }
+            return s;
+        }
+
+
         /*
          * When NPCs' names are Jayified for the first time, save them here.
          * This serves as the substitution dictionary for ordinary and event
          * dialogue.
+         * The keys are sorted descending by length, then ascending by value.
+         * Replacing longer keys first makes certain edge cases work better
+         * ("Pierre's Prime" is replaced before "Pierre"; if Pierre went first,
+         * Prime would be left unjayed).
          */
-        private static Dictionary<string, string> DisplayNameMap = new();
+        private static SortedDictionary<string, string> DisplayNameMap =
+                new(new comp());
+
+        private class comp : Comparer<string>
+        {
+            public override int Compare(string a, string b) {
+                if (a.Length == b.Length) {
+                    return a.CompareTo(b);
+                }
+                return b.Length.CompareTo(a.Length);
+            }
+        }
 
         /*
          * Flag to prevent string edits before the NPC list is ready.
@@ -191,7 +206,7 @@ namespace ichortower.TheJClub
          * substitutions. This is the part where I bet I missed some.
          */
         private static List<string> StringStringDataAssets = new() {
-            "Data/hats", "Data/Quests",
+            "Data/hats", "Data/mail", "Data/Quests",
         };
 
         /*
