@@ -16,12 +16,15 @@ namespace ichortower.TheJClub
         public static Main instance = null;
         public static string ModId = null;
         public static IMutateMode Mode = null;
+        public static ModConfig Config = null;
 
         public override void Entry(IModHelper helper)
         {
             Main.instance = this;
+            Config = helper.ReadConfig<ModConfig>();
             helper.Events.Content.AssetRequested += OnAssetRequested;
             helper.Events.Specialized.LoadStageChanged += OnLoadStageChanged;
+            helper.Events.GameLoop.GameLaunched += OnGameLaunched;
             OtherNames = helper.Data.ReadJsonFile<List<string>>
                     ("assets/OtherNames.json") ?? new List<string>();
             Bonchinate.Overrides = helper.Data.ReadJsonFile<Dictionary<string, string>>
@@ -45,7 +48,28 @@ namespace ichortower.TheJClub
                     postfix: new HarmonyMethod(typeof(Main),
                         nameof(this.Utility_ParseGiftReveals_Postfix)));
 
-            Mode = new Bonchinate();
+            SelectMode();
+        }
+
+        public static void SelectMode()
+        {
+            instance.Monitor.Log($"{Config.Mode}", LogLevel.Warn);
+            Mode = Config.Mode switch {
+                AltMode.Boncher => new Bonchinate(),
+                _ => new Jayify()
+            };
+        }
+
+        public static void ForgetNames()
+        {
+            DisplayNameMap.Clear();
+            NPCListReady = false;
+            instance.Helper.GameContent.InvalidateCache("Strings/NPCNames");
+            instance.Helper.GameContent.InvalidateCache("Data/Characters");
+            instance.Helper.GameContent.InvalidateCache(asset => {
+                return asset.NameWithoutLocale.StartsWith("Strings/") ||
+                        StringStringDataAssets.Contains(asset.NameWithoutLocale.ToString());
+            });
         }
 
         private void OnAssetRequested(object sender, AssetRequestedEventArgs e)
@@ -105,6 +129,11 @@ namespace ichortower.TheJClub
                             StringStringDataAssets.Contains(asset.NameWithoutLocale.ToString());
                 });
             }
+        }
+
+        private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
+        {
+            JConf.Register();
         }
 
         private void StringStringDictNameReplace(IAssetData asset)
