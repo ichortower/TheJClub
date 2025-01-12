@@ -18,8 +18,8 @@ This mod now features the ability to switch between different mutators, or
 "onch" into character names. More alt modes may be added in the future.
 
 To switch modes, use Generic Mod Config Menu and choose the mode you want, or
-edit your config.json by hand like an animal. The option is called `AltMode`
-and the allowed values are `None` (default J behavior) and `Boncher`.
+edit your config.json by hand like an animal. The option is called `Mode`
+and the allowed values are `Default` (default J behavior) and `Boncher`.
 
 # Caveats (Technical)
 
