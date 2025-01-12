@@ -21,6 +21,9 @@ To switch modes, use Generic Mod Config Menu and choose the mode you want, or
 edit your config.json by hand like an animal. The option is called `Mode`
 and the allowed values are `Default` (default J behavior) and `Boncher`.
 
+You should not need to reload your game. All affected assets should be
+invalidated and reloaded automatically.
+
 # Caveats (Technical)
 
 This mod accounts for any custom NPC that either:
