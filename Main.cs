@@ -15,14 +15,17 @@ namespace ichortower.TheJClub
     {
         public static Main instance = null;
         public static string ModId = null;
+        public static IMutateMode Mode = null;
 
         public override void Entry(IModHelper helper)
         {
             Main.instance = this;
             helper.Events.Content.AssetRequested += OnAssetRequested;
             helper.Events.Specialized.LoadStageChanged += OnLoadStageChanged;
-            OtherNames = helper.Data.ReadJsonFile<List<string>>("assets/OtherNames.json")
-                    ?? new List<string>();
+            OtherNames = helper.Data.ReadJsonFile<List<string>>
+                    ("assets/OtherNames.json") ?? new List<string>();
+            Bonchinate.Overrides = helper.Data.ReadJsonFile<Dictionary<string, string>>
+                    ("assets/Boncher.json") ?? new Dictionary<string, string>();
             var harmony = new Harmony(this.ModManifest.UniqueID);
 
             MethodInfo NPC_showTextAboveHead = typeof(NPC).GetMethod(
@@ -41,6 +44,8 @@ namespace ichortower.TheJClub
             harmony.Patch(Utility_ParseGiftReveals,
                     postfix: new HarmonyMethod(typeof(Main),
                         nameof(this.Utility_ParseGiftReveals_Postfix)));
+
+            Mode = new Bonchinate();
         }
 
         private void OnAssetRequested(object sender, AssetRequestedEventArgs e)
@@ -54,7 +59,7 @@ namespace ichortower.TheJClub
                     var dict = data.AsDictionary<string, string>();
                     foreach (var entry in dict.Data) {
                         dict.Data[entry.Key] = DisplayNameMap[entry.Value] =
-                                Jayify(entry.Value);
+                                Mode.Mutate(entry.Value);
                     }
                 }, AssetEditPriority.Late + AfterEverybody);
             }
@@ -66,7 +71,7 @@ namespace ichortower.TheJClub
                         string displayName = entry.Value.DisplayName;
                         if (!displayName.StartsWith("[LocalizedText")) {
                             entry.Value.DisplayName = DisplayNameMap[displayName] =
-                                    Jayify(displayName);
+                                    Mode.Mutate(displayName);
                         }
                     }
                 }, AssetEditPriority.Late + AfterEverybody);
@@ -92,7 +97,7 @@ namespace ichortower.TheJClub
             if (e.NewStage >= LoadStage.Preloaded && !NPCListReady &&
                     DisplayNameMap.Count > 0) {
                 foreach (string name in OtherNames) {
-                    DisplayNameMap[name] = Jayify(name);
+                    DisplayNameMap[name] = Mode.Mutate(name);
                 }
                 NPCListReady = true;
                 Helper.GameContent.InvalidateCache(asset => {
@@ -123,37 +128,6 @@ namespace ichortower.TheJClub
                 ref string __result)
         {
             __result = ReplaceNames(__result);
-        }
-
-        private string Jayify(string input)
-        {
-            if (input is null) {
-                return "J";
-            }
-            var items = input.Split(" ", StringSplitOptions.RemoveEmptyEntries |
-                    StringSplitOptions.TrimEntries).Select(JayifyWord).ToArray();
-            return String.Join(" ", items);
-        }
-
-        private string JayifyWord(string word)
-        {
-            if (word.ToUpper().StartsWith("J")) {
-                return word;
-            }
-            foreach (string s in scunthorpe) {
-                // the 1 here is hardcoded because we know the scunthorpes are
-                // two letters (vowel-consonant). change if needed later
-                if (word.ToLower().StartsWith(s)) {
-                    return "Ja" + word.Substring(1);
-                }
-                if (word.ToLower().Substring(1).StartsWith(s)) {
-                    return "J" + word.ToLower();
-                }
-            }
-            if ("aeiouAEIOU".IndexOf(word[0]) > 0) {
-                return "J" + word.Substring(0,1).ToLower() + word.Substring(1);
-            }
-            return "J" + word.Substring(1);
         }
 
         private static string ReplaceNames(string s)
@@ -192,14 +166,6 @@ namespace ichortower.TheJClub
          * Set to true after reaching a load stage where the list is populated.
          */
         private static bool NPCListReady = false;
-
-        /*
-         * Intended to prevent certain unfortunate words from occurring.
-         * Currently: jew, jizz
-         */
-        private static List<string> scunthorpe = new() {
-            "ew", "iz"
-        };
 
         /*
          * List of assets using string->string models that require NPC name
