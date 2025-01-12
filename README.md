@@ -11,6 +11,19 @@ it increases the number of Js.
 
 This mod should automatically work with custom NPCs, but see below for details.
 
+## And, Introducing... Alt Modes!
+
+This mod now features the ability to switch between different mutators, or
+"modes". At this time, there is only one alt mode, "Boncher", which inserts
+"onch" into character names. More alt modes may be added in the future.
+
+To switch modes, use Generic Mod Config Menu and choose the mode you want, or
+edit your config.json by hand like an animal. The option is called `Mode`
+and the allowed values are `Default` (default J behavior) and `Boncher`.
+
+You should not need to reload your game. All affected assets should be
+invalidated and reloaded automatically.
+
 # Caveats (Technical)
 
 This mod accounts for any custom NPC that either:

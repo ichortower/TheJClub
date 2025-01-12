@@ -1,0 +1,10 @@
+// override specific poor results from the Boncher algorithm and use funnier ones
+{
+  "Abigail": "Abigonch",
+  "Abby": "Abby",
+  "Demetrius": "Demonchrius",
+  "Haley": "Honchley",
+  "Sebastian": "Sebonchian",
+  "Sebby": "Sebby",
+  "Seb": "Seb"
+}

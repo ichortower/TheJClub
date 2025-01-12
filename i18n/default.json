@@ -1,0 +1,6 @@
+{
+  "gmcm.mode.name": "Mode",
+  "gmcm.mode.tooltip": "Choose what kind of name mutation you want to apply to every NPC.",
+  "gmcm.blurb.Default": "Default: Makes every name start with J.",
+  "gmcm.blurb.Boncher": "Boncher: Get Bonched"
+}
