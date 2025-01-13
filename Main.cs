@@ -53,7 +53,6 @@ namespace ichortower.TheJClub
 
         public static void SelectMode()
         {
-            instance.Monitor.Log($"{Config.Mode}", LogLevel.Warn);
             Mode = Config.Mode switch {
                 AltMode.Boncher => new Bonchinate(),
                 _ => new Jayify()
