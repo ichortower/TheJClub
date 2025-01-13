@@ -2,7 +2,7 @@
 	"Name": "The J Club",
 	"Author": "ichortower",
 	"Description": "Changes every NPC's name to start with J.",
-	"Version": "1.1.0",
+	"Version": "1.1.1",
 	"UniqueID": "ichortower.TheJClub",
 	"EntryDll": "TheJClub.dll",
 	"MinimumApiVersion": "4.0.0",
