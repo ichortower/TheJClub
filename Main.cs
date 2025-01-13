@@ -65,6 +65,22 @@ namespace ichortower.TheJClub
             NPCListReady = false;
             instance.Helper.GameContent.InvalidateCache("Strings/NPCNames");
             instance.Helper.GameContent.InvalidateCache("Data/Characters");
+            Game1.content.Load<Dictionary<string, string>>("Strings/NPCNames");
+            Game1.content.Load<Dictionary<string, CharacterData>>("Data/Characters");
+            AddOtherNames();
+            NPCListReady = true;
+            InvalidateTierTwo();
+        }
+
+        private static void AddOtherNames()
+        {
+            foreach (string name in OtherNames) {
+                DisplayNameMap[name] = Mode.Mutate(name);
+            }
+        }
+
+        private static void InvalidateTierTwo()
+        {
             instance.Helper.GameContent.InvalidateCache(asset => {
                 return asset.NameWithoutLocale.StartsWith("Strings/") ||
                         StringStringDataAssets.Contains(asset.NameWithoutLocale.ToString());
@@ -119,14 +135,9 @@ namespace ichortower.TheJClub
         {
             if (e.NewStage >= LoadStage.Preloaded && !NPCListReady &&
                     DisplayNameMap.Count > 0) {
-                foreach (string name in OtherNames) {
-                    DisplayNameMap[name] = Mode.Mutate(name);
-                }
+                AddOtherNames();
                 NPCListReady = true;
-                Helper.GameContent.InvalidateCache(asset => {
-                    return asset.NameWithoutLocale.StartsWith("Strings/") ||
-                            StringStringDataAssets.Contains(asset.NameWithoutLocale.ToString());
-                });
+                InvalidateTierTwo();
             }
         }
 
